@@ -1,6 +1,6 @@
 # PHPWebThread
 
-The PHPWebThread class is much simple to use: Just load the file, constructs a instance of it passing as a argument a function with the part you want to load and start it! In the final of script, just call the static method PHPWebThread::printScripts(); and you have the parts specified loading asyncronously in every browser with support to HTML 5.
+The PHPWebThread class is very simple: Just load the file, create a instance of it passing as a argument a function with the part you want to load and start it! At the end of script, just call the static method PHPWebThread::printScripts(); and you have the parts specified loading asyncronously in every browser with support to HTML 5.
 
 This is similar to BigPipe, just renamed and programated to allow more simplicity in the use.
 
@@ -45,7 +45,7 @@ The class is very much simple to use. Just look at the example below:
       </body>
     </html>
  
-## To which not need of cache...
+## For those who do not need cache....
 
 It's possible to remove the requeriment of use Apache with some adaptations:
 
