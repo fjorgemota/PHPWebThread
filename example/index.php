@@ -92,7 +92,7 @@ Vivamus sed elit sem, sed porttitor quam. Suspendisse vestibulum ultrices metus 
 		$sidebar -> addCSSFile("css/sidebar.css"); // Load the CSS of the sidebar
 		$sidebar -> start(); // Just start, and echo, the code to initialize the thread
 
-		/* Rodape */
+		/* Footer */
 		$footer = new PHPWebThread("the_footer");
 		$footer -> setCache(true); // We want to cache the footer, that's static too, huh?
 		$footer -> addCSSFile("css/footer.css");  // Load the CSS of the footer
