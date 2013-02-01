@@ -1,0 +1,15 @@
+#posts{
+	width: 70%;
+	float:left;
+	background: #999;
+	height: auto;
+}
+.post{
+	width:100%;
+	clear:both;
+	background: #ccc;
+}
+.post-title, .post-content{
+	width:100%;
+	clear:both;
+}

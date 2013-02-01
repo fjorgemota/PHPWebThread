@@ -1,0 +1,15 @@
+#sidebar{
+	width:29%;
+	float:left;
+	height: auto;
+}
+.widget{
+	width: 100%;
+	clear: both;
+	background: yellow;
+	height:200px;
+}
+.widget-title, .widget-content{
+	width: 100%;
+	clear: both;
+}
