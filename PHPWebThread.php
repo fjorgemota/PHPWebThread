@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_ALL);
 if(!class_exists("PHPWebThread")){
 	if (session_id() == "") { // It's session not started?
 	    session_start(); // Just initialize a session
@@ -246,9 +247,13 @@ if(!class_exists("PHPWebThread")){
 			?>
 			<script language="javascript" type="text/javascript" src="<?php
 			        echo $path;
-			?>PHPWebThread.js" async="async"></script>
+			?>PHPWebThread.js" async="async" data-server-supported="<?php echo PHPWebThread::isSupported()?"1":"0"; ?>"></script>
 			<?php
 	    }
+        private static function isSupported(){
+            /* Just verify if it's apache */
+            return strtolower(substr($_SERVER["SERVER_SOFTWARE"], 0, 6)) == "apache";
+        }
 	    public static function process()
 	    {
 	    	/* Execute the thread */ 
@@ -327,9 +332,6 @@ if(!class_exists("PHPWebThread")){
 			}
 			echo $content; //Oh, and we echo too! :D
 	    }
-	}
-	if($_SERVER["SCRIPT_FILENAME"] == __FILE__){ // The requested file is the same that we're using?
-		PHPWebThread::process(); // If yes, just call process to process the Thread request
 	}
 }
 
