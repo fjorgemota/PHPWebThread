@@ -8,7 +8,6 @@ The class have some requeriments:
 
 - DOM extension - native in very much implementations of PHP)
 - Support to Sessions - to allow the class to localizate the file in which the functions is localizated)
-- Apache mod_rewrite - Now, you can use just Apache to allow the cache to work. Why? As the script allows cache, Apache provides a more sophisticated (and light!) way to cache the items and eliminates the use of PHP in the requests, in a way similar to WP-Super Cache in this aspect.
 
 Is possible (i think) to adjust the Nginx configuration file to allow the use of this file too. But, it not the high priority now. Some priorities is localizated in below:
 
@@ -44,15 +43,6 @@ The class is very much simple to use. Just look at the example below:
         ?>
       </body>
     </html>
- 
-## For those who do not need cache....
-
-It's possible to remove the requeriment of use Apache with some adaptations:
-
-1. Change the URL to instance PHPWebThreads in PHPWebThread.js file.
-2. Change the logic in the PHPWebThread::isThreadProcessing(); file
-
-But, we recomends to allow use of the cache, just to not overload your server..
 
 ## Support
 
