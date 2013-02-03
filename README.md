@@ -59,3 +59,5 @@ Just e-mail to f.j.mota13 [at] gmail.com with the subject PHPWebThread ;)
 ## Install
 
 To use the class, we recommend to alter the RewriteBase directive in the .htaccess. Just a tip. :P
+
+[LazyLoad]]: https://github.com/rgrove/lazyload/  "LazyLoad Loader"
