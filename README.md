@@ -6,8 +6,8 @@ This is similar to BigPipe, just renamed and programated to allow more simplicit
 
 The class have some requeriments:
 
-- DOM extension - native in very much implementations of PHP)
-- Support to Sessions - to allow the class to localizate the file in which the functions is localizated)
+- DOM extension - native in very much implementations of PHP
+- Support to Sessions - to allow the class to localizate the file in which the functions is localizated
 
 Is possible (i think) to adjust the Nginx configuration file to allow the use of this file too. But, it not the high priority now. Some priorities is localizated in below:
 
