@@ -5,15 +5,20 @@ b.urls[0]){l("css");break}h+=1;b&&(h<200?setTimeout(t,50):l("css"))}}var c,s,m={
 (function(){
 	var allScripts = document.getElementsByTagName("script");
 	var thePath = null;
-	var regex = /(.*)PHPWebThread\.js$/
+	var regex = /(.*)PHPWebThread\.js$/;
+	var server_supported = true;
 	for(var c=0, l=allScripts.length; c<l; ++c){
 		if(regex.test(allScripts[c].src)){
 			thePath = regex.exec(allScripts[c].src)[1];
+			server_supported = allScripts[c].getAttribute("data-server-supported") == "1";
 			break; // Just breaks! :D
 		}
 	}
+	if(!server_supported){
+		thePath = thePath+"PHPWebThreadDispatch.php/"; // It's don't supported, use PATH INFO instead
+	}
 	var instances = [];
-	window.PHPWebThread = function(name, cached){
+	window.PHPWebThread = function(name, cached, is_server_supported){
 		this.id = instances.length;
 		this.name = name;
 		this.start = function(){
@@ -27,7 +32,7 @@ b.urls[0]){l("css");break}h+=1;b&&(h<200?setTimeout(t,50):l("css"))}}var c,s,m={
 			request_uri = request_uri.join("/");
 			var asyncScript = document.createElement("script");
 			asyncScript.async = true;
-			asyncScript.src = thePath+"phpwebthread/"+this.id+"/"+this.name+"_"+cached+".js"; // Set the URL
+			asyncScript.src = thePath+"phpwebthread/"+this.id+"/"+this.name+"."+(cached?"js":"php"); // Set the URL
 			asyncScript.charset = "UTF-8"; //It uses UTF-8
 			(document.getElementsByTagName("head")[0]||document.head||document.body).appendChild(asyncScript); // And load it!
 		}

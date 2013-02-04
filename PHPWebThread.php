@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_ALL);
 if(!class_exists("PHPWebThread")){
 	if (session_id() == "") { // It's session not started?
 	    session_start(); // Just initialize a session
@@ -224,21 +225,11 @@ if(!class_exists("PHPWebThread")){
 	        $javascript_content = $this->convertHTMLtoJS($html_content); // Converte para javascript \o/
 	        return $javascript_content; //Just returns :D
 	    }
-	    private static function endsWith($haystack, $needle)
-	    {
-	    	/* Detect the end of the script */
-	        $length = strlen($needle);
-	        if ($length == 0) {
-	            return true;
-	        }
-	        return (substr($haystack, -$length) === $needle);
-	    }
 	    private static function isThreadProcessing()
 	    {
 	    	/* Return true if it's a processing page */
 	        $path  = $_SERVER["REQUEST_URI"]; // Get the Request URI of the script
-	        $parts = explode("/", $path); // Just split
-	        return in_array("phpwebthread", $parts) and PHPWebThread::endsWith($path, ".js"); // Verify if the page extension is .js and if PHPWebThread is a directory in the request uri
+	        return preg_match('/.*phpwebthread\/\d*\/([a-z0-9]*).(php|js)$/', $path) == 1; // Verify if the page extension is .js and if PHPWebThread is a directory in the request uri
 	    }
 	    public static function printScripts($path = "")
 	    {
@@ -246,9 +237,13 @@ if(!class_exists("PHPWebThread")){
 			?>
 			<script language="javascript" type="text/javascript" src="<?php
 			        echo $path;
-			?>PHPWebThread.js" async="async"></script>
+			?>PHPWebThread.js" async="async" data-server-supported="<?php echo PHPWebThread::isSupported()?"1":"0"; ?>"></script>
 			<?php
 	    }
+        private static function isSupported(){
+            /* Just verify if it's apache */
+            return strtolower(substr($_SERVER["SERVER_SOFTWARE"], 0, 6)) == "apache";
+        }
 	    public static function process()
 	    {
 	    	/* Execute the thread */ 
@@ -259,7 +254,8 @@ if(!class_exists("PHPWebThread")){
 	        $path   = $_SERVER["REQUEST_URI"]; // Get the Request URI of the script
 	        $parts  = explode("/", $path); // Split into parts
 	        $length = count($parts);
-	        list($name, $cached) = explode("_",substr(array_pop($parts), 0, -3));// Extract the name and the cache status
+	        list($name, $ext) = explode(".",array_pop($parts));// Extract the name and the extension
+	        $cached = $ext == "js";
 	        $id     = array_pop($parts); // Extract the ID
 	        $key = "PHPWebThread_" . $id . "_" . $name;
 	        if (!isset($_SESSION[$key])) { // It's seted?
@@ -286,7 +282,7 @@ if(!class_exists("PHPWebThread")){
 	        // Ignore the cache directory
 	        $cache_dir = dirname($_SERVER["SCRIPT_FILENAME"]) . "/phpwebthread/";
 	        // Just create the directory
-	        if ($thread->isCached() and $cached == "true" and !is_dir($cache_dir.$id)) {
+	        if ($thread->isCached() and $cached and !is_dir($cache_dir.$id)) {
 	            mkdir($cache_dir.$id, 0777, true);
 			}
 	       
@@ -320,16 +316,13 @@ if(!class_exists("PHPWebThread")){
 	        $js_list .= "]"; // Close the javascript array of JS Files to load
 	        $content .= "PHPWebThread.getInstance(".$id.").put(elements, ".$css_list.", ".$js_list.")"; // Call the .put method in the PHPWebThread Javascript instance! :D
 	        $content .= "})());"; // And call the instruction at the final of the loading
-			if($thread->isCached() and $cached=="true"){ // Verify if it's cached
-				$arq = fopen($cache_dir.$id."/".$name."_".$cached.".js","w+"); // If yes, we create the file
+			if($thread->isCached() and $cached){ // Verify if it's cached
+				$arq = fopen($cache_dir.$id."/".$name.".js","w+"); // If yes, we create the file
 				fwrite($arq, $content); // Write in it
 				fclose($arq); // And close :~
 			}
 			echo $content; //Oh, and we echo too! :D
 	    }
-	}
-	if($_SERVER["SCRIPT_FILENAME"] == __FILE__){ // The requested file is the same that we're using?
-		PHPWebThread::process(); // If yes, just call process to process the Thread request
 	}
 }
 
