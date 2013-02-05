@@ -54,7 +54,6 @@ b.urls[0]){l("css");break}h+=1;b&&(h<200?setTimeout(t,50):l("css"))}}var c,s,m={
 					else{
 						var parentElement = theScript.parentNode;
 						for(var c=0, l=elements.length;c<l; ++c){
-							console.log(elements[c]);
 							parentElement.insertBefore(elements[c], theScript);
 						}
 					}
