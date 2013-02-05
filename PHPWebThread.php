@@ -7,7 +7,8 @@ if(!class_exists("PHPWebThread")){
 	class PHPWebThread
 	{
 	    public static $instances = array();
-	    private static $print_thread = false;
+	    private static $print_thread = false; // Just a flag to process one time the function
+	    private static $keep_alive = false; // Deactivate the keep alive mode in servers that support it
 	    private $run_original; // Save the method (or function) to call :B
 	    private $arguments = array(); // Save the arguments
 	    private $started; // It is started?
@@ -250,6 +251,10 @@ if(!class_exists("PHPWebThread")){
             /* Just verify if it's apache */
             return strtolower(substr($_SERVER["SERVER_SOFTWARE"], 0, 6)) == "apache";
         }
+		public static function setKeepAlive($active){
+			/* This function can activate or deactivate keep-alive, transforming each request in a parallel request */
+			PHPWebThread::$keep_alive = $active; 
+		}
 	    public static function process()
 	    {
 	    	/* Execute the thread */ 
@@ -291,8 +296,10 @@ if(!class_exists("PHPWebThread")){
 	        if ($thread->isCached() and $cached and !is_dir($cache_dir.$id)) {
 	            mkdir($cache_dir.$id, 0777, true);
 			}
-	       
 	        header("Content-type: text/javascript");
+			if(!PHPWebThread::$keep_alive){
+				header("Connection: Close");
+			}
 	        $result = $thread->handle_run();
 	        // Execute the function and call as...Javascript \o/
 	        $content = "";
