@@ -41,7 +41,7 @@ if(!class_exists("PHPWebThread")){
 	        $this->cached           = false;
 	        PHPWebThread::$instances[] = $this; // Add this instance 
 	    }
-	    private function convertHTMLtoJS($html, $parent = NULL)
+	    private function convertHTMLtoJS($html, $parent = NULL, $counter = 0)
 	    {
 	    	/* Just convert the HTML code to JS. Simple, huh? */
 	        if (is_string($html)) {
@@ -49,38 +49,39 @@ if(!class_exists("PHPWebThread")){
 	        } else {
 	            $type = get_class($html);
 	        }
+			++$counter;
 	        switch ($type) {
 	            case "DOMDocument":
 	            case "DOMElement":
-	                $id = $html->nodeName . "_" . md5(uniqid()) . "_element";
+	                $id = "e".$counter;
 	                if ($html->nodeName != "#document") {
-	                    $code = "var " . $id . " = document.createElement('" . $html->nodeName . "');\n";
+	                    $code = "var " . $id . "=d.createElement('" . $html->nodeName . "');";
 	                } else {
 	                    $code = "";
 	                }
 	                if (!!$html->attributes) {
-	                    foreach ($html->attributes as $attr) {
-	                        $code .= $id . ".setAttribute('" . $attr->name . "', '" . $attr->value . "');\n";
-	                    }
+						foreach ($html->attributes as $attr) {
+		                	$code .= $id.".setAttribute('" . $attr->name . "', '" . $attr->value . "');";
+		                }
 	                }
 	                if (!!$html->childNodes) {
-	                    foreach ($html->childNodes as $child) {
-	                        if ($child->nodeType == XML_TEXT_NODE) {
-	                            $code .= $id . ".appendChild(document.createTextNode('" . utf8_decode(str_replace(array(
-	                                "\r\n",
-	                                "\r",
-	                                "\n"
-	                            ), '\n', $child->nodeValue)) . "'));\n";
-	                        } else {
-	                            $element = PHPWebThread::convertHTMLtoJS($child);
-	                            $code .= $element["code"];
-	                            if ($html->nodeName != "#document") {
-	                                $code .= $id . ".appendChild(" . $element["id"] . ");\n";
-	                            } else {
-	                                $id = $element["id"];
-	                            }
-	                        }
-	                    }
+							foreach ($html->childNodes as $child) {
+		                        if ($child->nodeType == XML_TEXT_NODE) {
+		                            $code .= $id . ".appendChild(d.createTextNode('" . utf8_decode(str_replace(array(
+		                                "\r\n",
+		                                "\r",
+		                                "\n"
+		                            ), '\n', $child->nodeValue)) . "'));\n";
+		                        } else {
+		                            $element = $this->convertHTMLtoJS($child, $html, $counter);
+		                            $code .= $element["code"];
+		                            if ($html->nodeName != "#document") {
+		                                $code .= $id . ".appendChild(" . $element["id"] . ");";
+		                            } else {
+		                                $id = $element["id"];
+		                            }
+		                        }
+		                    }
 	                }
 	                return array(
 	                    "code" => $code,
@@ -108,7 +109,8 @@ if(!class_exists("PHPWebThread")){
 	                        $dom = $dom->getElementsByTagName($parent);
 	                        $dom = $dom->item(0);
 	                    }
-	                    $result = PHPWebThread::convertHTMLtoJS($dom);
+						$result = "var d = document;";
+	                    $result .= $this->convertHTMLtoJS($dom, NULL, $counter);
 	                    return $result;
 	                } else { // We not have a parent
 	                    $result = array();
@@ -116,8 +118,12 @@ if(!class_exists("PHPWebThread")){
 	                    $dom    = $dom->item(0);
 	                    for ($c = 0, $length = $dom->childNodes->length; $c < $length; ++$c) {
 	                        $node     = $dom->childNodes->item($c);
-	                        $result[] = PHPWebThread::convertHTMLtoJS($node, $dom);
+	                        $result[] = $this->convertHTMLtoJS($node, $dom, $counter);
+							++$counter;
 	                    }
+						if($counter > 0){
+							$result[0]["code"] = "var d = document;".$result[0]["code"];
+						}
 	                    return $result;
 	                }
 	                break;
