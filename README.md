@@ -21,6 +21,18 @@ Now, the class has good support to use. But, has some things to do:
 - Remove the internal dependency of [LazyLoad] loader
 - And what your imagination can do! :D
 
+## Install
+
+To use the class, we recommend to alter the RewriteBase directive in the .htaccess. Just a tip. :P
+
+## About timeout and no Javascript support
+
+The class has a default timeout of 10 seconds to load a PHPWebThread. After this time, the class automatically redirects to a No Javascript version of the page that uses the class.
+
+The No Javascript version just call the PHPWebThreads sequentially, and can be activated with the GET parameter ?phpwebthread_deactivate=1.
+
+Is possible, too, to echo a element with the id "phpwebthread_fallbackmsg", with a link to the no javascript version. This element is automatically hided at the first load of a PHPWebThread.
+
 ## Example of use
 
 The class is very much simple to use. Just look at the example below:
@@ -56,8 +68,5 @@ Oh, this class is licensed with the MIT license. And uses the code from the [Laz
 
 Just e-mail to f.j.mota13 [at] gmail.com with the subject PHPWebThread ;)
 
-## Install
-
-To use the class, we recommend to alter the RewriteBase directive in the .htaccess. Just a tip. :P
 
 [LazyLoad]: https://github.com/rgrove/lazyload/  "LazyLoad Loader"
