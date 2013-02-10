@@ -148,7 +148,7 @@ if(!class_exists("PHPWebThread")){
 	    {
 	    	/* Just return the HTML to call the PHP Thread */
 	        $content = "";
-	        $content .= "<script language='javascript' type='text/javascript' data-phpwebthread-id='" . $this->id . "'>\n";
+	        $content .= "<script language='javascript' type='text/javascript' data-phpwebthread-id='" . $this->id . "'>\n//<!--\n";
 			$first = true; // It's the first thread that is initializated? We assume to yes
 	        foreach(PHPWebThread::$instances as $thread){ // Iterate over all the threads to verify it
 	        	if($thread->isStarted()){ //It's started?
@@ -162,7 +162,7 @@ if(!class_exists("PHPWebThread")){
 	        $content .= "window.php_web_threads.push(function(){\n";
 	        $content .= "var thread = new PHPWebThread('" . $this->func_name . "',".($this->cached?"true":"false").");thread.start();";//Instance and start the new thread
 	        $content .= "});\n";
-	        $content .= "</script>";
+	        $content .= "//-->\n</script>";
 	        $_SESSION["PHPWebThread_" . $this->id . "_" . $this->func_name] = $_SERVER["SCRIPT_FILENAME"]; // Save the requested filename in a session to posterior use..
 	        return $content;
 	    }
@@ -182,11 +182,26 @@ if(!class_exists("PHPWebThread")){
 	        if($this->started){
 	        	throw new Exception("The thread was already started!");
 	        }
-	        if (!PHPWebThread::isThreadProcessing()) {
+	        if (!PHPWebThread::isThreadProcessing() and PHPWebThread::isActive()) {
 	            echo $this->getHTML();
 	        }
+            else if(!PHPWebThread::isActive()){ // It's not active?
+                ob_start(); // Buffer it! :D
+                foreach($this->css_files as $css_file){
+                    echo "<link rel='stylesheet' type='text/css' href='",$css_file,"' />\n";
+                }
+                call_user_func_array($this->run_original, $this->arguments); // Just call the function! 
+                foreach($this->js_files as $js_file){
+                    echo "<script language='javascript' type='text/javascript' src='",$js_file,"'></script>\n";
+                }
+                ob_end_flush(); // Just send the content!
+                flush();
+            }
 	        $this->started = true;
 	    }
+		public static function isActive(){
+			return !isset($_GET["phpwebthread_deactivate"]);
+		} 
 	    public function isStarted()
 	    {
 	        /* Is started? */
@@ -241,6 +256,9 @@ if(!class_exists("PHPWebThread")){
 	    public static function printScripts($path = "")
 	    {
 	    	/* Echo the script to load the PHPWebThread script */
+	    	if(!PHPWebThread::isActive()){
+	    	    return;
+	    	}
 			?>
 			<script language="javascript" type="text/javascript" src="<?php
 			        echo $path;
