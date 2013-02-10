@@ -21,6 +21,7 @@ b.urls[0]){l("css");break}h+=1;b&&(h<200?setTimeout(t,50):l("css"))}}var c,s,m={
 	window.PHPWebThread = function(name, cached, is_server_supported){
 		this.id = instances.length;
 		this.name = name;
+		this.timeoutId = null;
 		this.start = function(){
 			var request_uri = window.location.href;
 			request_uri = request_uri.split("/");
@@ -35,6 +36,16 @@ b.urls[0]){l("css");break}h+=1;b&&(h<200?setTimeout(t,50):l("css"))}}var c,s,m={
 			asyncScript.src = thePath+"phpwebthread/"+this.id+"/"+this.name+"."+(cached?"js":"php"); // Set the URL
 			asyncScript.charset = "UTF-8"; //It uses UTF-8
 			(document.getElementsByTagName("head")[0]||document.head||document.body).appendChild(asyncScript); // And load it!
+			if(!!PHPWebThread.timeout){
+				this.timeoutId = setTimeout(function(){
+					if(window.location.href.indexOf("?") > -1){
+						window.location.href = window.location.href+"&phpwebthread_deactivate=1";
+					}
+					else{
+						window.location.href = window.location.href+"?phpwebthread_deactivate=1";
+					}
+				}, PHPWebThread.timeout*1000); //Issue a timeout! :D
+			}
 		}
 		this.put = function(elements, css_files, js_files){
 			/* Put the elements in the DOM */
@@ -53,6 +64,14 @@ b.urls[0]){l("css");break}h+=1;b&&(h<200?setTimeout(t,50):l("css"))}}var c,s,m={
 					}
 					else{
 						var parentElement = theScript.parentNode;
+						if(self.timeoutId != null){
+							clearTimeout(self.timeoutId); // Stop the timeout! :D
+						}
+						
+						var fallbackMsg = document.getElementById("phpwebthread_fallbackmsg");
+						if(!!fallbackMsg){
+							fallbackMsg.style.display = "none";
+						}
 						for(var c=0, l=elements.length;c<l; ++c){
 							parentElement.insertBefore(elements[c], theScript);
 						}
@@ -60,7 +79,6 @@ b.urls[0]){l("css");break}h+=1;b&&(h<200?setTimeout(t,50):l("css"))}}var c,s,m={
 					if(js_files.length > 0){
 						LazyLoad.js(js_files); // Load the JS files after the loading of the DOM:D
 					}
-					self.put = null; // One time function :D
 			};
 			if(css_files.length > 0){
 				LazyLoad.css(css_files, callback); // Just load the CSS files and call callback
@@ -71,6 +89,10 @@ b.urls[0]){l("css");break}h+=1;b&&(h<200?setTimeout(t,50):l("css"))}}var c,s,m={
 		}
 		instances.push(this); // Append the instance
 	};
+	PHPWebThread.timeout = 10;
+	PHPWebThread.setTimeout = function(timeout){
+		PHPWebThread.timeout = timeout;
+	}
 	PHPWebThread.getInstance = function(id){
 		return instances[id];
 	}
